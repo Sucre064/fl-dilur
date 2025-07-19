@@ -117,7 +117,7 @@
     });
 
     const imageBounds = [[0, 0], [2048, 2048]];
-    L.imageOverlay('gta5map.png', imageBounds).addTo(map);
+    L.imageOverlay('/fl-dilur/gta5map.png', imageBounds).addTo(map);
     map.fitBounds(imageBounds);
 
     const znajdzki = [
@@ -174,12 +174,11 @@
         .bindPopup(`
   <div style="text-align:center;">
     <b>${z.name}</b><br>
-    <img src="images/${z.image}" 
-         data-src="images/${z.image}"
-         class="popup-image" 
-         alt="${z.name}" 
-         style="width: 150px; margin-top: 5px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.3); cursor: zoom-in;" />
-  </div>
+    <img src="/fl-dilur/images/${z.image}" 
+     data-src="/fl-dilur/images/${z.image}"
+     class="popup-image" 
+     alt="${z.name}" 
+     style="width: 150px; margin-top: 5px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.3); cursor: zoom-in;" />
 `);
 
       markers.push(marker);
