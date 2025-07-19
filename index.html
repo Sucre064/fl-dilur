@@ -7,17 +7,17 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background-color: #0f3157;
-}
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background-color: #0f3157;
+    }
 
-#map {
-  width: 100%;
-  height: 100vh;
-  background-color: #0f3157;
-}
+    #map {
+      width: 100%;
+      height: 100vh;
+      background-color: #0f3157;
+    }
     #counter {
       position: absolute;
       top: 10px;
@@ -64,36 +64,36 @@
     #legend-list li:hover {
       background-color: #eee;
     }
-	/* Lightbox (powiększanie zdjęć) */
-#lightbox {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.8);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
+    /* Lightbox (powiększanie zdjęć) */
+    #lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
 
-#lightbox img {
-  max-width: 90%;
-  max-height: 90%;
-  border-radius: 10px;
-  box-shadow: 0 0 10px #000;
-}
+    #lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+    }
 
-#lightboxClose {
-  position: absolute;
-  top: 30px;
-  right: 40px;
-  color: white;
-  font-size: 32px;
-  cursor: pointer;
-  font-family: sans-serif;
-}
+    #lightboxClose {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      color: white;
+      font-size: 32px;
+      cursor: pointer;
+      font-family: sans-serif;
+    }
   </style>
 </head>
 <body>
@@ -104,10 +104,10 @@
     <ul id="legend-list"></ul>
   </div>
   <!-- Lightbox -->
-<div id="lightbox">
-  <div id="lightboxClose">&times;</div>
-  <img id="lightboxImage" src="" alt="Powiększone zdjęcie" />
-</div>
+  <div id="lightbox">
+    <div id="lightboxClose">&times;</div>
+    <img id="lightboxImage" src="" alt="Powiększone zdjęcie" />
+  </div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const map = L.map('map', {
@@ -117,7 +117,7 @@
     });
 
     const imageBounds = [[0, 0], [2048, 2048]];
-    L.imageOverlay('/fl-dilur/gta5map.png', imageBounds).addTo(map);
+    L.imageOverlay('fl-dilur/gta5map.png', imageBounds).addTo(map);
     map.fitBounds(imageBounds);
 
     const znajdzki = [
@@ -157,14 +157,14 @@
     });
 
     const redIcon = L.icon({
-  iconUrl: 'marker-icon-red.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  shadowSize: [41, 41],
-  shadowAnchor: [12, 41]
-});
+      iconUrl: 'fl-dilur/marker-icon-red.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      shadowSize: [41, 41],
+      shadowAnchor: [12, 41]
+    });
 
     const markers = [];
     let aktywnyMarker = null;
@@ -172,14 +172,15 @@
     znajdzki.forEach((z) => {
       const marker = L.marker(z.coords, { icon: defaultIcon }).addTo(map)
         .bindPopup(`
-  <div style="text-align:center;">
-    <b>${z.name}</b><br>
-    <img src="/fl-dilur/images/${z.image}" 
-     data-src="/fl-dilur/images/${z.image}"
-     class="popup-image" 
-     alt="${z.name}" 
-     style="width: 150px; margin-top: 5px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.3); cursor: zoom-in;" />
-`);
+          <div style="text-align:center;">
+            <b>${z.name}</b><br>
+            ${z.image ? `<img src="fl-dilur/images/${z.image}" 
+                 data-src="fl-dilur/images/${z.image}"
+                 class="popup-image" 
+                 alt="${z.name}" 
+                 style="width: 150px; margin-top: 5px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.3); cursor: zoom-in;" />` : ''}
+          </div>
+        `);
 
       markers.push(marker);
 
@@ -195,32 +196,33 @@
       li.textContent = z.name;
 
       li.addEventListener('click', () => {
-  map.flyTo(z.coords, map.getZoom(), { duration: 0.5 }); // ładna animacja
-  marker.openPopup();
+        map.flyTo(z.coords, map.getZoom(), { duration: 0.5 });
+        marker.openPopup();
 
-  if (aktywnyMarker && aktywnyMarker !== marker) {
-    aktywnyMarker.setIcon(defaultIcon);
-  }
+        if (aktywnyMarker && aktywnyMarker !== marker) {
+          aktywnyMarker.setIcon(defaultIcon);
+        }
 
-  marker.setIcon(redIcon);
-  aktywnyMarker = marker;
-});
+        marker.setIcon(redIcon);
+        aktywnyMarker = marker;
+      });
 
       document.getElementById('legend-list').appendChild(li);
     });
-	// Obsługa lightboxa
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('popup-image')) {
-    const src = e.target.getAttribute('data-src');
-    document.getElementById('lightboxImage').src = src;
-    document.getElementById('lightbox').style.display = 'flex';
-  }
 
-  if (e.target.id === 'lightbox' || e.target.id === 'lightboxClose') {
-    document.getElementById('lightbox').style.display = 'none';
-    document.getElementById('lightboxImage').src = '';
-  }
-});
+    // Obsługa lightboxa
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('popup-image')) {
+        const src = e.target.getAttribute('data-src');
+        document.getElementById('lightboxImage').src = src;
+        document.getElementById('lightbox').style.display = 'flex';
+      }
+
+      if (e.target.id === 'lightbox' || e.target.id === 'lightboxClose') {
+        document.getElementById('lightbox').style.display = 'none';
+        document.getElementById('lightboxImage').src = '';
+      }
+    });
   </script>
 </body>
 </html>
