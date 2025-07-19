@@ -7,17 +7,22 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
     html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-  background-color: #0f3157;
-}
-
-#map {
-  width: 100%;
-  height: 100vh;
-  background-color: #0f3157;
-}
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+      background-color: #242c30;
+    }
+    #map {
+      width: 100vw;
+      aspect-ratio: 2160/3840;
+      max-width: 100vw;
+      max-height: 100vh;
+      margin: 0;
+      padding: 0;
+      display: block;
+      background-color: #242c30;
+    }
     #counter {
       position: absolute;
       top: 10px;
@@ -64,36 +69,62 @@
     #legend-list li:hover {
       background-color: #eee;
     }
-	/* Lightbox (powiększanie zdjęć) */
-#lightbox {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.8);
-  display: none;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-}
-
-#lightbox img {
-  max-width: 90%;
-  max-height: 90%;
-  border-radius: 10px;
-  box-shadow: 0 0 10px #000;
-}
-
-#lightboxClose {
-  position: absolute;
-  top: 30px;
-  right: 40px;
-  color: white;
-  font-size: 32px;
-  cursor: pointer;
-  font-family: sans-serif;
-}
+    #lightbox {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.8);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    #lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 0 10px #000;
+    }
+    #lightboxClose {
+      position: absolute;
+      top: 30px;
+      right: 40px;
+      color: white;
+      font-size: 32px;
+      cursor: pointer;
+      font-family: sans-serif;
+    }
+    #custom-zoom-controls {
+      position: absolute;
+      left: 20px;
+      bottom: 20px;
+      z-index: 1200;
+      background: rgba(255,255,255,0.95);
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 6px;
+    }
+    #custom-zoom-controls button {
+      font-size: 24px;
+      width: 40px;
+      height: 40px;
+      margin: 0;
+      background: #242c30;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.2s;
+    }
+    #custom-zoom-controls button:hover {
+      background: #2a6fc0;
+    }
   </style>
 </head>
 <body>
@@ -103,48 +134,65 @@
     <h3>Dilerzy</h3>
     <ul id="legend-list"></ul>
   </div>
-  <!-- Lightbox -->
-<div id="lightbox">
-  <div id="lightboxClose">&times;</div>
-  <img id="lightboxImage" src="" alt="Powiększone zdjęcie" />
-</div>
+  <div id="lightbox">
+    <div id="lightboxClose">&times;</div>
+    <img id="lightboxImage" src="" alt="Powiększone zdjęcie" />
+  </div>
+  <div id="custom-zoom-controls">
+    <button id="zoom-in">+</button>
+    <button id="zoom-out">−</button>
+  </div>
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
+    // Tworzenie mapy
     const map = L.map('map', {
       crs: L.CRS.Simple,
       minZoom: -2,
-      maxZoom: 2
+      maxZoom: 2,
+      zoomControl: false
     });
 
-    const imageBounds = [[0, 0], [2048, 2048]];
+    // Ustawienie bounds pod rozmiar nowej mapy (2160 szerokości, 3840 wysokości)
+    const imageBounds = [[0, 0], [3840, 2160]];
     L.imageOverlay('gta5map.png', imageBounds).addTo(map);
     map.fitBounds(imageBounds);
 
+    document.getElementById('zoom-in').addEventListener('click', function() {
+      map.zoomIn();
+    });
+    document.getElementById('zoom-out').addEventListener('click', function() {
+      map.zoomOut();
+    });
+
+    // --- USUNIĘTO możliwość dodawania markerów na klik ---
+
     const znajdzki = [
-      { name: "Vinewood Hills", coords: [730, 929] },
-      { name: "Left Highway", coords: [788, 427] },
-      { name: "Sad", coords: [427, 750] },
-      { name: "Złom", coords: [381, 834], image: "Złom.png" },
-      { name: "Budowa", coords: [544, 863], image: "Budowa.png" },
-      { name: "Skatepark", coords: [478, 1062] },
-      { name: "El Burro", coords: [373, 1191] },
-      { name: "Elektrownia", coords: [915, 1394] },
-      { name: "Dinozaur", coords: [1097, 1357], image: "Dino.png" },
-      { name: "Złom Samolot", coords: [1181, 1326] },
-      { name: "Motel Sandy", coords: [1257, 1194] },
-      { name: "Skate Sandy", coords: [1281, 1349] },
-      { name: "Wagon", coords: [1426, 1423] },
-      { name: "Dom O'Neal", coords: [1492, 1334] },
-      { name: "Szopa", coords: [1026, 1194], image: "Szopa.png" },
-      { name: "Tunel Paleto", coords: [1464, 833] },
-      { name: "Garaż Kurier", coords: [1704, 891] },
-      { name: "Magazyn Cluckin Bell", coords: [1702, 947] },
-      { name: "Przyczepa Paleto", coords: [1793, 974] },
-      { name: "Jacht", coords: [500, 485] },
-      { name: "Lost Sandy", coords: [1267, 901], image: "Lost.png" },
-      { name: "Hamownia", coords: [1103, 1111], image: "Hamownia.png" },
-      { name: "Statek Doki", coords: [177, 1144] },
-      { name: "Mount Chilliad", coords: [1587, 1012] },
+      { name: "Vinewood Hills", coords: [1578, 1013] },
+      { name: "Autostrada", coords: [1662, 318], image: "Autostrada.png" },
+      { name: "Sad", coords: [1160, 764] },
+      { name: "Złom", coords: [1094, 884], image: "Złom.png" },
+      { name: "Budowa", coords: [1327, 916], image: "Budowa.png" },
+      { name: "Skatepark", coords: [1233, 1193] },
+      { name: "El Burro", coords: [1097, 1388] },
+      { name: "Elektrownia", coords: [1837, 1653] },
+      { name: "Dinozaur", coords: [2087, 1597], image: "Dino.png" },
+      { name: "Złom Samolot", coords: [2201, 1560] },
+      { name: "Motel Sandy", coords: [2308, 1375] },
+      { name: "Skate Sandy", coords: [2314, 1597] },
+      { name: "Wagon", coords: [2546, 1691] },
+      { name: "Dom O'Neal", coords: [2623, 1580] },
+      { name: "Szopa", coords: [1880, 1372], image: "Szopa.png" },
+      { name: "Tunel Paleto", coords: [2614, 914] },
+      { name: "Garaż Kurier", coords: [2932, 964] },
+      { name: "Magazyn Cluckin Bell", coords: [2927, 1037] },
+      { name: "Przyczepa Paleto", coords: [3047, 1076] },
+      { name: "Jacht", coords: [1266, 427] },
+      { name: "Lost Sandy", coords: [2324, 971], image: "Lost.png" },
+      { name: "Hamownia", coords: [2094, 1261], image: "Hamownia.png" },
+      { name: "Statek Doki", coords: [775, 1323] },
+      { name: "Mount Chilliad", coords: [2761, 1141] },
+      { name: "Opuszczony", coords: [2067, 959] },
+      { name: "Flotto", coords: [1430, 974] },
     ];
 
     document.getElementById('counter').textContent = "Liczba dilerów: " + znajdzki.length;
@@ -157,30 +205,36 @@
     });
 
     const redIcon = L.icon({
-  iconUrl: 'marker-icon-red.png',
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-  shadowSize: [41, 41],
-  shadowAnchor: [12, 41]
-});
+      iconUrl: 'marker-icon-red.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      shadowSize: [41, 41],
+      shadowAnchor: [12, 41]
+    });
 
     const markers = [];
     let aktywnyMarker = null;
 
     znajdzki.forEach((z) => {
+      const popupHtml = `
+        <div style="text-align:center;">
+          <b>${z.name}</b><br>
+          ${
+            z.image
+              ? `<img src="images/${z.image}" 
+                       data-src="images/${z.image}"
+                       class="popup-image" 
+                       alt="${z.name}" 
+                       style="width: 150px; margin-top: 5px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.3); cursor: zoom-in;" />`
+              : ''
+          }
+        </div>
+      `;
+
       const marker = L.marker(z.coords, { icon: defaultIcon }).addTo(map)
-        .bindPopup(`
-  <div style="text-align:center;">
-    <b>${z.name}</b><br>
-    <img src="images/${z.image}" 
-         data-src="images/${z.image}"
-         class="popup-image" 
-         alt="${z.name}" 
-         style="width: 150px; margin-top: 5px; border-radius: 8px; box-shadow: 0 0 5px rgba(0,0,0,0.3); cursor: zoom-in;" />
-  </div>
-`);
+        .bindPopup(popupHtml);
 
       markers.push(marker);
 
@@ -196,32 +250,32 @@
       li.textContent = z.name;
 
       li.addEventListener('click', () => {
-  map.flyTo(z.coords, map.getZoom(), { duration: 0.5 }); // ładna animacja
-  marker.openPopup();
+        map.flyTo(z.coords, map.getZoom(), { duration: 0.5 });
+        marker.openPopup();
 
-  if (aktywnyMarker && aktywnyMarker !== marker) {
-    aktywnyMarker.setIcon(defaultIcon);
-  }
+        if (aktywnyMarker && aktywnyMarker !== marker) {
+          aktywnyMarker.setIcon(defaultIcon);
+        }
 
-  marker.setIcon(redIcon);
-  aktywnyMarker = marker;
-});
+        marker.setIcon(redIcon);
+        aktywnyMarker = marker;
+      });
 
       document.getElementById('legend-list').appendChild(li);
     });
-	// Obsługa lightboxa
-document.addEventListener('click', function(e) {
-  if (e.target.classList.contains('popup-image')) {
-    const src = e.target.getAttribute('data-src');
-    document.getElementById('lightboxImage').src = src;
-    document.getElementById('lightbox').style.display = 'flex';
-  }
 
-  if (e.target.id === 'lightbox' || e.target.id === 'lightboxClose') {
-    document.getElementById('lightbox').style.display = 'none';
-    document.getElementById('lightboxImage').src = '';
-  }
-});
+    document.addEventListener('click', function(e) {
+      if (e.target.classList.contains('popup-image')) {
+        const src = e.target.getAttribute('data-src');
+        document.getElementById('lightboxImage').src = src;
+        document.getElementById('lightbox').style.display = 'flex';
+      }
+
+      if (e.target.id === 'lightbox' || e.target.id === 'lightboxClose') {
+        document.getElementById('lightbox').style.display = 'none';
+        document.getElementById('lightboxImage').src = '';
+      }
+    });
   </script>
 </body>
 </html>
