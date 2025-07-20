@@ -35,12 +35,12 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.2);
       z-index: 1000;
     }
+    /* --- Rozwijana legenda --- */
     #legend {
       position: absolute;
       top: 10px;
       left: 10px;
       max-height: 90vh;
-      overflow-y: auto;
       width: 200px;
       background: rgba(255, 255, 255, 0.95);
       border-radius: 10px;
@@ -48,11 +48,53 @@
       font-family: sans-serif;
       z-index: 1000;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      transition: width 0.2s, padding 0.2s;
     }
-    #legend h3 {
-      margin-top: 0;
+    #legend.collapsed {
+      width: 48px;
+      padding-left: 8px;
+      padding-right: 8px;
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+    #legend-list {
+      transition: max-height 0.2s, opacity 0.2s;
+    }
+    #legend.collapsed #legend-list {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      padding: 0;
+      margin: 0;
+      pointer-events: none;
+    }
+    #legend-toggle {
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      user-select: none;
+    }
+    #legend-arrow {
+      font-size: 18px;
+      margin-right: 6px;
+      transition: transform 0.2s;
+    }
+    #legend.collapsed #legend-arrow {
+      transform: rotate(0deg);
+    }
+    #legend:not(.collapsed) #legend-arrow {
+      transform: rotate(90deg);
+    }
+    #legend-title {
       font-size: 16px;
-      text-align: center;
+      font-weight: bold;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* Nowa linia: ukryj tytuł gdy legenda zwinięta */
+    #legend.collapsed #legend-title {
+      display: none;
     }
     #legend-list {
       list-style: none;
@@ -130,8 +172,11 @@
 <body>
   <div id="counter">Liczba dilerów: 0</div>
   <div id="map"></div>
-  <div id="legend">
-    <h3>Dilerzy</h3>
+  <div id="legend" class="collapsed">
+    <div id="legend-toggle">
+      <span id="legend-arrow">&#9654;</span>
+      <span id="legend-title">Dilerzy</span>
+    </div>
     <ul id="legend-list"></ul>
   </div>
   <div id="lightbox">
@@ -164,34 +209,33 @@
       map.zoomOut();
     });
 
-    // --- USUNIĘTO możliwość dodawania markerów na klik ---
-
+    // --- MARKERY (tylko statyczne, bez klikania po mapie) ---
     const znajdzki = [
       { name: "Vinewood Hills", coords: [1578, 1013] },
       { name: "Autostrada", coords: [1662, 318], image: "Autostrada.png" },
       { name: "Sad", coords: [1160, 764] },
       { name: "Złom", coords: [1094, 884], image: "Złom.png" },
       { name: "Budowa", coords: [1327, 916], image: "Budowa.png" },
-      { name: "Skatepark", coords: [1233, 1193] },
-      { name: "El Burro", coords: [1097, 1388] },
+      { name: "El Burro", coords: [1097, 1388], image: "ElBuro.png" },
+      { name: "Skatepark", coords: [1233, 1193], image: "Skate.png" },
       { name: "Elektrownia", coords: [1837, 1653] },
       { name: "Dinozaur", coords: [2087, 1597], image: "Dino.png" },
       { name: "Złom Samolot", coords: [2201, 1560] },
-      { name: "Motel Sandy", coords: [2308, 1375] },
+      { name: "Motel Sandy", coords: [2308, 1375], image: "Motel.png" },
       { name: "Skate Sandy", coords: [2314, 1597] },
-      { name: "Wagon", coords: [2546, 1691] },
+      { name: "Wagon", coords: [2546, 1691], image: "Wagon.png" },
       { name: "Dom O'Neal", coords: [2623, 1580] },
       { name: "Szopa", coords: [1880, 1372], image: "Szopa.png" },
       { name: "Tunel Paleto", coords: [2614, 914] },
-      { name: "Garaż Kurier", coords: [2932, 964] },
-      { name: "Magazyn Cluckin Bell", coords: [2927, 1037] },
+      { name: "Garaż Kurier", coords: [2932, 964], image: "Kurier.png" },
+      { name: "Magazyn Cluckin Bell", coords: [2927, 1037], image: "Kurczak.png" },
       { name: "Przyczepa Paleto", coords: [3047, 1076] },
       { name: "Jacht", coords: [1266, 427] },
       { name: "Lost Sandy", coords: [2324, 971], image: "Lost.png" },
       { name: "Hamownia", coords: [2094, 1261], image: "Hamownia.png" },
       { name: "Statek Doki", coords: [775, 1323] },
       { name: "Mount Chilliad", coords: [2761, 1141] },
-      { name: "Opuszczony", coords: [2067, 959] },
+      { name: "Opuszczony", coords: [2067, 959], image: "Opuszczony.png" },
       { name: "Flotto", coords: [1430, 974] },
     ];
 
@@ -264,6 +308,14 @@
       document.getElementById('legend-list').appendChild(li);
     });
 
+    // Legenda rozwijana/zwijana
+    const legend = document.getElementById('legend');
+    const legendToggle = document.getElementById('legend-toggle');
+    legendToggle.addEventListener('click', function() {
+      legend.classList.toggle('collapsed');
+    });
+
+    // Obsługa lightboxa
     document.addEventListener('click', function(e) {
       if (e.target.classList.contains('popup-image')) {
         const src = e.target.getAttribute('data-src');
